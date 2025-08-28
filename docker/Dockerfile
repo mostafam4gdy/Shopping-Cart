@@ -11,8 +11,8 @@ WORKDIR $APP_HOME
 # Copy built jar
 COPY target/shopping-cart-0.0.1-SNAPSHOT.jar app.jar
 
-# Set JVM options (heap size)
-ENV JAVA_OPTS="-Xms128m -Xmx512m"
+# JVM options (heap size, entropy fix, tmpdir)
+ENV JAVA_OPTS="-Xms128m -Xmx512m -Djava.security.egd=file:/dev/./urandom -Djava.io.tmpdir=/tmp"
 
-# Correct ENTRYPOINT: pass JAVA_OPTS
-ENTRYPOINT exec java $JAVA_OPTS -jar app.jar
+# ENTRYPOINT wrapped in sh -c for Alpine stability
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
