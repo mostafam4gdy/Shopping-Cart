@@ -1,7 +1,7 @@
 # Use a modern JDK 11 base image
-FROM eclipse-temurin:11-jre-alpine
+FROM openjdk:8u151-jdk-alpine3.7
 
-# Expose Spring Boot default port (8080)
+# Expose Spring Boot default port (8070)
 EXPOSE 8070
 
 # App directory
