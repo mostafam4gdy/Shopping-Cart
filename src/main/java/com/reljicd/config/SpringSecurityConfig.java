@@ -4,11 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 import javax.sql.DataSource;
@@ -21,7 +22,7 @@ import javax.sql.DataSource;
  * @author Dusan
  */
 @Configuration
-public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
+public class SpringSecurityConfig {
 
     private final AccessDeniedHandler accessDeniedHandler;
 
@@ -30,7 +31,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${spring.admin.username}")
     private String adminUsername;
 
-    @Value("${spring.admin.username}")
+    @Value("${spring.admin.password}")
     private String adminPassword;
 
     @Value("${spring.queries.users-query}")
@@ -53,45 +54,42 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
      * - every other page needs authentication
      * - custom 403 access denied handler
      */
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-
-        http.csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/home", "/registration", "/error", "/h2-console/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login")
-                .defaultSuccessUrl("/home")
-                .permitAll()
-                .and()
-                .logout()
-                .permitAll()
-                .and()
-                .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
-                // Fix for H2 console
-                .and().headers().frameOptions().disable();
+    @Bean
+    public org.springframework.security.web.SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/home", "/registration", "/error", "/h2-console/**", "/css/**", "/webjars/**").permitAll()
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .failureUrl("/login?error")
+                        .defaultSuccessUrl("/home")
+                        .permitAll())
+                .logout(logout -> logout.permitAll())
+                .exceptionHandling(exceptions -> exceptions.accessDeniedHandler(accessDeniedHandler))
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
+        return http.build();
     }
 
 
     /**
      * Authentication details
      */
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-
-        // Database authentication
-        auth.
-                jdbcAuthentication()
-                .usersByUsernameQuery(usersQuery)
-                .authoritiesByUsernameQuery(rolesQuery)
-                .dataSource(dataSource)
-                .passwordEncoder(passwordEncoder());
-
-        // In memory authentication
-        auth.inMemoryAuthentication()
-                .withUser(adminUsername).password(adminPassword).roles("ADMIN");
+    @Bean
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+        JdbcUserDetailsManager jdbcUsers = new JdbcUserDetailsManager(dataSource);
+        jdbcUsers.setUsersByUsernameQuery(usersQuery);
+        jdbcUsers.setAuthoritiesByUsernameQuery(rolesQuery);
+        return username -> {
+            if (adminUsername.equals(username)) {
+                return User.withUsername(adminUsername)
+                        .password(passwordEncoder.encode(adminPassword))
+                        .roles("ADMIN")
+                        .build();
+            }
+            return jdbcUsers.loadUserByUsername(username);
+        };
     }
 
     /**

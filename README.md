@@ -16,9 +16,9 @@ Configuration
 Configuration Files
 ----------------------
 
-The folder src/resources/ contains all configuration files for the shopping-cart application.
+The folder `src/main/resources/` contains all configuration files for the shopping-cart application.
 
-src/resources/application.properties – Main configuration file. You can update the admin credentials and modify the server port here.
+`src/main/resources/application.properties` – Main configuration file. You can update the admin credentials and modify the server port here.
 
 Running the Application
 ----------------------
@@ -49,17 +49,14 @@ $ java -jar target/shopping-cart-0.0.1-SNAPSHOT.jar
 Running with Maven
 ----------------------
 
-First, verify that Java and Maven are properly installed:
+This project targets Java 25 (LTS). Verify Java and Maven are properly installed:
 
 $ java -version
-java version "1.8.0_102"
-Java(TM) SE Runtime Environment (build 1.8.0_102-b14)
-Java HotSpot(TM) 64-Bit Server VM (build 25.102-b14, mixed mode)
+openjdk version "25"
 
 $ mvn -v
-Apache Maven 3.3.9 (...)
-Maven home: /usr/local/Cellar/maven/3.3.9/libexec
-Java version: 1.8.0_102, vendor: Oracle Corporation
+Apache Maven 3.9.x
+Java version: 25
 
 1. Using the Maven Plugin
 $ mvn spring-boot:run

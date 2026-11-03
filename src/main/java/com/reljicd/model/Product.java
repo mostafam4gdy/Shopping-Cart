@@ -1,10 +1,10 @@
 package com.reljicd.model;
 
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Size;
 
-import javax.persistence.*;
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Min;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import java.math.BigDecimal;
 
 @Entity
@@ -12,12 +12,12 @@ import java.math.BigDecimal;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
-    @Length(min = 3, message = "*Name must have at least 5 characters")
+    @Size(min = 3, message = "*Name must have at least 5 characters")
     private String name;
 
     @Column(name = "description")

@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <div th:replace="/fragments/header :: header"/>
+    <th:block th:replace="~{/fragments/header :: header}"></th:block>
 </head>
 
 <body>
 
-<div th:replace="/fragments/header :: navbar"/>
+<div th:replace="~{/fragments/header :: navbar}"></div>
 
 <div class="container">
 
@@ -51,7 +51,7 @@
 
 </div>
 
-<div th:replace="/fragments/footer :: footer"/>
+<div th:replace="~{/fragments/footer :: footer}"></div>
 
 </body>
 </html>

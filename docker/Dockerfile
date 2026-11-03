@@ -1,5 +1,5 @@
-# Use a modern JDK 11 base image
-FROM openjdk:8u151-jdk-alpine3.7
+# Use the supported Java 25 LTS runtime
+FROM eclipse-temurin:25-jre
 
 # Expose Spring Boot default port (8070)
 EXPOSE 8070
